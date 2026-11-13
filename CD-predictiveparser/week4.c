@@ -3,6 +3,21 @@
 #include <string.h>
 
 char stack[100], input[100];
+
+// Parsing table: rows = E,Q,T,R,F
+// Columns = i,+,*,(,),$
+
+char table[5][6][10] = {
+    {"TQ",  "", "", "TQ", "", ""},
+    {"", "+TQ", "", "", "#", "#"},
+    {"FR", "", "", "FR", "", ""},
+    {"", "#", "*FR", "", "#", "#"},
+    {"i", "", "", "(E)", "", ""}
+};
+
+char nonterm[] = "EQTRF";
+char terminal[] = "i+*()$";
+
 int top = -1, i = 0;
 
 void push(char ch)
@@ -10,22 +25,16 @@ void push(char ch)
     stack[++top] = ch;
 }
 
-void pop()
-{
-    top--;
-}
-
-int main()
+void main()
 {
     char x, ch;
+    int row, col, j;
 
     printf("Enter expression: ");
     scanf("%s", input);
 
-    // Append $
     strcat(input, "$");
 
-    // Initialize stack
     push('$');
     push('E');
 
@@ -34,108 +43,46 @@ int main()
         x = stack[top];
         ch = input[i];
 
-        // Accept
         if (x == '$' && ch == '$')
             break;
 
         // Terminal matching
         else if (x == ch)
         {
-            pop();
+            top--;
             i++;
         }
 
-        // E -> TQ
-        else if (x == 'E')
-        {
-            if (ch == 'i' || ch == '(')
-            {
-                pop();
-                push('Q');
-                push('T');
-            }
-            else
-                break;
-        }
-
-        // Q -> +TQ | #
-        else if (x == 'Q')
-        {
-            pop();
-
-            if (ch == '+')
-            {
-                push('Q');
-                push('T');
-                push('+');
-            }
-            else if (ch == ')' || ch == '$')
-            {
-                // Epsilon: push nothing
-            }
-            else
-                break;
-        }
-
-        // T -> FR
-        else if (x == 'T')
-        {
-            if (ch == 'i' || ch == '(')
-            {
-                pop();
-                push('R');
-                push('F');
-            }
-            else
-                break;
-        }
-
-        // R -> *FR | #
-        else if (x == 'R')
-        {
-            pop();
-
-            if (ch == '*')
-            {
-                push('R');
-                push('F');
-                push('*');
-            }
-            else if (ch == '+' || ch == ')' || ch == '$')
-            {
-                // Epsilon: push nothing
-            }
-            else
-                break;
-        }
-
-        // F -> (E) | i
-        else if (x == 'F')
-        {
-            pop();
-
-            if (ch == '(')
-            {
-                push(')');
-                push('E');
-                push('(');
-            }
-            else if (ch == 'i')
-            {
-                push('i');
-            }
-            else
-                break;
-        }
-
+        // Non-terminal: access parsing table
         else
-            break;
+        {
+            for (row = 0; row < 5; row++)
+                if (nonterm[row] == x)
+                    break;
+
+            for (col = 0; col < 6; col++)
+                if (terminal[col] == ch)
+                    break;
+
+            if (row == 5 || col == 6 ||
+                table[row][col][0] == '\0')
+                break;
+
+            char *prod = table[row][col];
+
+            top--;
+
+            // Epsilon
+            if (strcmp(prod, "#") != 0)
+            {
+                for (j = strlen(prod) - 1; j >= 0; j--)
+                    push(prod[j]);
+            }
+        }
     }
 
     if (top == 0 && stack[top] == '$' && input[i] == '$')
         printf("\nString Accepted\n");
     else
         printf("\nString Rejected\n");
-
-    return 0;
 }
