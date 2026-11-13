@@ -7,10 +7,10 @@ int stack[100], top = 0, i = 0;
 
 // ACTION columns: c,d,$
 int action[7][3] = {
-    { 4,  5,   0},
+    { 3,  4,   0},
     { 0,  0, 999},
-    { 4,  5,   0},
-    { 4,  5,   0},
+    { 3,  4,   0},
+    { 3,  4,   0},
     {-3, -3,  -3},
     { 0,  0,  -1},
     {-2, -2,  -2}
@@ -89,7 +89,7 @@ int main()
         // Shift
         else if(act > 0)
         {
-            stack[++top] = act - 1;
+            stack[++top] = act;
             i++;
         }
 
