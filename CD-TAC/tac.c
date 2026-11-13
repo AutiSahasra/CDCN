@@ -3,8 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
-char operands[100][100];
-char operators[100];
+char operands[100][100]; //otop
+char operators[100];//atop
 
 int otop = -1, atop = -1;
 int temp = 1;
